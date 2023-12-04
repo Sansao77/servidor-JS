@@ -1,0 +1,33 @@
+// Pegando todos os registros
+GET http://192.168.68.154:3000/produtos
+
+### 
+// Pegando o registro 1
+GET http://192.168.68.154:3000/produtos/1
+
+###
+
+GET http://192.168.68.154:3000/produtos/2
+
+###
+// Criando um novo registro especifico
+POST http://192.168.68.154:3000/produtos
+content-type: application/json
+
+{
+    "nome": "Premeditatio Malorum"
+}
+
+###
+// Atualizando um registro especifico - precisa definir o número do objeto que sera alterado
+PUT http://192.168.68.154:3000/produtos/166
+content-type: application/json
+
+{
+    "nome": "Premeditatio Malorum"
+}
+
+###
+// Deletar um registro especifico - precisa definir o número do objeto que sera deletado
+
+DELETE http://192.168.68.154:3000/produtos/155
