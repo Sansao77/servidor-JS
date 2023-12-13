@@ -5,6 +5,7 @@ import { api } from '../../services/api';
 interface Product{
   id: number;
   nome: string;
+  isEditing: boolean;
 }
 
 export default function Home() {
@@ -38,7 +39,7 @@ export default function Home() {
   /**
    * Esta função serve para carregar a página depois de suas alterações, sendo a adição
    */
-  async function loadItems(){
+  function loadItems(){
     setLoading(true);
     setTimeout(async() => {
       try{
@@ -59,7 +60,8 @@ export default function Home() {
    */
   async function handleCLickAddItem(){
     console.log(textInput);
-    const data = {nome: textInput};
+    const data: Omit<Product, "id"> = {nome: textInput, isEditing: false};
+    setTextInput('');
     loadItems();
     try{
       if(textInput === '') throw Error;
@@ -68,7 +70,6 @@ export default function Home() {
     catch(error){
       console.error("Error: ", error);
     }
-    setTextInput('');
     /*try{
       const response = await fetch("http://192.168.68.153:3000/produtos",{
         method: "Post", //or Put
@@ -89,18 +90,66 @@ export default function Home() {
    * Essa função deleta o elemento ao lado dele e o retira da lista do servidor
    * @param itemId representa o Id do elemento que sera deletado
    */
-  function handleClickDeleteItem(itemId:number){
+  async function handleClickDeleteItem(itemId:number){
     console.log("Deletar elemento de ID: ", itemId);
-    setTimeout(async() => {
-      try{
-        const response = await api.delete(`/produtos/${itemId}`);
-        console.log(response);
+    
+    try{
+      const response = await api.delete(`/produtos/${itemId}`);
+      console.log(response);
+      // Serve para filtrar o elemento da tela do usuário
+      const filteredItens = itens.filter(item=>item.id !== itemId);
+      setItens(filteredItens);
+    }
+    catch(error){
+      console.error("Error: ", error);
+    }
+  }
+
+  function handleClickEditItem(itemId:number){
+    console.log("Editar elemento de Id:", itemId);
+
+    const changedItens = itens.map(item=>{
+      // Se o elemento tiver o Id que foi mensionado,  então ele deve alterar o booleano do isEditing
+      if(item.id === itemId) return {...item, isEditing:true};
+      return item;
+    });
+    setItens(changedItens);
+  }
+
+  async function handleClickUpdateItem(itemId:number){
+    console.log("Editar elemento de Id:", itemId);
+
+    itens.map(async item=>{
+      if(item.id === itemId) {
+        try{
+          if(item.nome === '') throw Error;
+          //Permite atualizar o elemento na lista
+          await api.put(`/produtos/${itemId}`,{nome: item.nome});
+        }
+        catch(error){
+          console.error("Error: ", error)
+        }
       }
-      catch(error){
-        console.error("Error: ", error);
-      }
-    }, 1000);
-    loadItems();
+    });
+
+    const changedItens = itens.map(item =>{
+      // Se o elemento tiver o Id que foi mensionado,  então ele deve alterar o booleano do isEditing
+      if(item.id === itemId) {
+        return {...item, isEditing:false}
+      };
+      return item;
+    });
+    setItens(changedItens);
+  }
+
+  function handleChangeItem(itemId: number, textValue: string){
+    const changedItens = itens.map(item =>{
+      if(item.id === itemId) return {...item, nome:textValue}
+      
+      return item;
+    });
+
+    setItens(changedItens);
   }
 
   return (
@@ -122,9 +171,17 @@ export default function Home() {
 
       <ul>
       {itens.map(item =>(
-        <li key={item.id}> 
-        {item.nome}
-        <button type='button' style={{marginLeft: 8}} onClick={()=>{handleClickDeleteItem(item.id)}}> Delete </button>
+        <li key={item.id} style={{marginTop: 5}}> 
+        {item.isEditing? (<input onChange={e =>{handleChangeItem(item.id, e.target.value)}} value={item.nome}/>) : item.nome}
+
+        {item.isEditing?(
+        <button type="button" style={{marginLeft: 6}} onClick={()=>{handleClickUpdateItem(item.id)}}>Save</button>
+        ):(
+          <button type="button" style={{marginLeft: 6}} onClick={()=>{handleClickEditItem(item.id)}}>Edit</button>
+        )}
+
+        
+        <button type='button' style={{marginLeft: 6}} onClick={()=>{handleClickDeleteItem(item.id)}}> Delete </button>
         </li>
       ))}
       </ul>
