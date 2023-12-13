@@ -33,7 +33,7 @@ export default function Home() {
 
   useEffect(()=>{
     console.log("O código está passando por aqui");
-  }, []);
+  }, [textInput]);
 
   /**
    * Esta função serve para carregar a página depois de suas alterações, sendo a adição
@@ -55,20 +55,20 @@ export default function Home() {
     }, 2000);
   }
   /**
-   * 
+   * Essa função serve para adicionar um elemento novo na lista do servidor web
    */
   async function handleCLickAddItem(){
     console.log(textInput);
     const data = {nome: textInput};
     loadItems();
     try{
-      if(textInput === "") throw Error;
+      if(textInput === '') throw Error;
       await api.post("/produtos", data);
     }
     catch(error){
       console.error("Error: ", error);
     }
-    
+    setTextInput('');
     /*try{
       const response = await fetch("http://192.168.68.153:3000/produtos",{
         method: "Post", //or Put
@@ -86,7 +86,7 @@ export default function Home() {
     }*/
   }
   /**
-   * Essa função deleta o elemento ao lado dele e retorna a lista sem o elemento
+   * Essa função deleta o elemento ao lado dele e o retira da lista do servidor
    * @param itemId representa o Id do elemento que sera deletado
    */
   function handleClickDeleteItem(itemId:number){
@@ -99,9 +99,6 @@ export default function Home() {
       catch(error){
         console.error("Error: ", error);
       }
-      finally{
-        setLoading(false);
-      }
     }, 1000);
     loadItems();
   }
@@ -110,8 +107,8 @@ export default function Home() {
    <main>
       <div style={{marginBottom: 10}}>
         {/**Esse 'onChange' permite pegar o texto do input*/}
-        <input onChange={e=>setTextInput(e.target.value)} type="text" placeholder='Digite seu texto aqui'/>
-        <button onClick={handleCLickAddItem}>Enviar</button>
+        <input onChange={e=>setTextInput(e.target.value)} value={textInput} type="text" placeholder='Digite seu texto aqui'/>
+        <button type='button' onClick={handleCLickAddItem}>Enviar</button>
       </div>
 
       <span>{loading && "Carregando..."}</span>
@@ -127,7 +124,7 @@ export default function Home() {
       {itens.map(item =>(
         <li key={item.id}> 
         {item.nome}
-        <button style={{marginLeft: 10}}onClick={()=>{handleClickDeleteItem(item.id)}}> Delete </button>
+        <button type='button' style={{marginLeft: 8}} onClick={()=>{handleClickDeleteItem(item.id)}}> Delete </button>
         </li>
       ))}
       </ul>
