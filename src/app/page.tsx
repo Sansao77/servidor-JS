@@ -1,10 +1,13 @@
 "use client"
 import {useState, useEffect} from 'react';
 import { api } from '../../services/api';
+import { Button, Card, CardBody, Skeleton, Image, CardFooter } from "@nextui-org/react";
+import { Input } from "@nextui-org/react";
 
 interface Product{
   id: number;
-  nome: string;
+  title: string;
+  price: number;
   isEditing: boolean;
 }
 
@@ -22,11 +25,10 @@ export default function Home() {
     //const produtos = await response.json();
   }*/
 
-  function handleClickFilter(){
+  /*function handleClickFilter(){
     // filtra todos os elementos que tem index impar (só esses ficam guardados no array)
     setItens(itens.filter(n=>(n.id%2) !== 0));
-    console.log(itens);
-  }
+    console.log(itens)Update*/
 
   useEffect(()=>{
     loadItems();
@@ -60,7 +62,7 @@ export default function Home() {
    */
   async function handleCLickAddItem(){
     console.log(textInput);
-    const data: Omit<Product, "id"> = {nome: textInput, isEditing: false};
+    const data: Omit<Product, "id"> = {title: textInput, isEditing: false, price: 0};
     setTextInput('');
     loadItems();
     try{
@@ -122,9 +124,9 @@ export default function Home() {
     itens.map(async item=>{
       if(item.id === itemId) {
         try{
-          if(item.nome === '') throw Error;
+          if(item.title === '') throw Error;
           //Permite atualizar o elemento na lista
-          await api.put(`/produtos/${itemId}`,{nome: item.nome});
+          await api.put(`/produtos/${itemId}`,{nome: item.title});
         }
         catch(error){
           console.error("Error: ", error)
@@ -153,38 +155,61 @@ export default function Home() {
   }
 
   return (
-   <main>
-      <div style={{marginBottom: 10}}>
-        {/**Esse 'onChange' permite pegar o texto do input*/}
-        <input onChange={e=>setTextInput(e.target.value)} value={textInput} type="text" placeholder='Digite seu texto aqui'/>
-        <button type='button' onClick={handleCLickAddItem}>Enviar</button>
+    <div className="px-80 flex flex-col gap-5 mt-5">
+
+      <div className="flex items-center gap-2">
+        <Input
+          value={textInput}
+          onChange={(e) => setTextInput(e.target.value)}
+          placeholder="Digite o seu texto aqui..."
+        />
+        <Button color="primary" onClick={handleCLickAddItem}>
+          Enviar
+        </Button>
       </div>
 
-      <span>{loading && "Carregando..."}</span>
+      {/* {loading && <p>Carregando...</p>} */}
 
-      {/*<button type='button' onClick={handleClick}>
-        Buscar informações no servidor </button>*/}
+      {loading && (
+        <div className="space-y-3">
+          <Skeleton className="w-3/5 rounded-lg">
+            <div className="h-3 w-3/5 rounded-lg bg-default-200"></div>
+          </Skeleton>
+          <Skeleton className="w-4/5 rounded-lg">
+            <div className="h-3 w-4/5 rounded-lg bg-default-200"></div>
+          </Skeleton>
+          <Skeleton className="w-2/5 rounded-lg">
+            <div className="h-3 w-2/5 rounded-lg bg-default-300"></div>
+          </Skeleton>
+        </div>
+      )}
 
-      <button type='button' onClick={handleClickFilter}>
-        Filtrar os elementos
-      </button>
+      <ul className='gap-6 grid grid-cols-[repeat(auto-fill,min(200px))] justify-between'>
+        {itens.map((item) => (
+          <li key={item.id}>
+            <Card
+            shadow='sm'
+            isPressable
+            onPress={()=>{console.log('item pressionado')}}>
+              <CardBody className='overflow-visible p-0'>
+                <Image 
+                shadow='sm'
+                radius='lg'
+                width='100%'
+                alt={item.title}
+                className='object-cover h-[140px] w-[200px]'
+                src='https://picsum.photos/seed/picsum/200/300'
+                />
 
-      <ul>
-      {itens.map(item =>(
-        <li key={item.id} style={{marginTop: 5}}> 
-        {item.isEditing? (<input onChange={e =>{handleChangeItem(item.id, e.target.value)}} value={item.nome}/>) : item.nome}
-
-        {item.isEditing?(
-        <button type="button" style={{marginLeft: 6}} onClick={()=>{handleClickUpdateItem(item.id)}}>Save</button>
-        ):(
-          <button type="button" style={{marginLeft: 6}} onClick={()=>{handleClickEditItem(item.id)}}>Edit</button>
-        )}
-
-        
-        <button type='button' style={{marginLeft: 6}} onClick={()=>{handleClickDeleteItem(item.id)}}> Delete </button>
-        </li>
-      ))}
+              </CardBody>
+              <CardFooter className='text-small justify-between'>
+                <b>{item.title}</b>
+                <p className='text-default-500'>{item.price}</p>
+              </CardFooter>
+            </Card>
+          </li>
+        ))}
       </ul>
-   </main>
-  )
+    </div>
+);
 }
