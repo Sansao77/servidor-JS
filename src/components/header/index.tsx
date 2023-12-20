@@ -1,4 +1,6 @@
 "use client";
+
+import { useContext } from "react";
 import { usePathname } from "next/navigation";
 import {
   Navbar,
@@ -7,7 +9,10 @@ import {
   NavbarItem,
   Link,
   Button,
+  Badge
 } from "@nextui-org/react";
+import { BsCart3 } from "react-icons/bs";
+import { ProductContext } from "@/contexts/ProductContext";
 
 const links = [
   { name: "Início", href: "/" },
@@ -15,8 +20,9 @@ const links = [
   { name: "Sobre", href: "/sobre" },
 ];
 
-export function Header() {
+export default function Header() {
   const pathname = usePathname();
+  const numProducts = useContext(ProductContext);
   console.log(pathname);
 
   return (
@@ -45,6 +51,10 @@ export function Header() {
           </Button>
         </NavbarItem>
       </NavbarContent>
+
+      <Badge color="primary" content={numProducts} shape='circle'>
+        <BsCart3 className='fill-current' size={30}/>
+      </Badge>
     </Navbar>
   );
 }

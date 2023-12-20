@@ -1,8 +1,11 @@
 "use client"
-import {useState, useEffect} from 'react';
+
+import {useState, useEffect, useContext} from 'react';
 import { api } from '../../services/api';
 import { Button, Card, CardBody, Skeleton, Image, CardFooter } from "@nextui-org/react";
 import { Input } from "@nextui-org/react";
+import {BsCart3} from 'react-icons/bs';
+import { ProductContext } from '@/contexts/ProductContext';
 
 interface Product{
   id: number;
@@ -15,6 +18,9 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [itens, setItens] = useState<Product[]>([]);
   const [textInput, setTextInput] = useState('');
+
+  
+  const numProducts = useContext(ProductContext);
 
   /*async function handleClick(){
     const response = await api.get("/produtos");
@@ -155,61 +161,62 @@ export default function Home() {
   }
 
   return (
-    <div className="px-80 flex flex-col gap-5 mt-5">
-
-      <div className="flex items-center gap-2">
-        <Input
-          value={textInput}
-          onChange={(e) => setTextInput(e.target.value)}
-          placeholder="Digite o seu texto aqui..."
-        />
-        <Button color="primary" onClick={handleCLickAddItem}>
-          Enviar
-        </Button>
-      </div>
-
-      {/* {loading && <p>Carregando...</p>} */}
-
-      {loading && (
-        <div className="space-y-3">
-          <Skeleton className="w-3/5 rounded-lg">
-            <div className="h-3 w-3/5 rounded-lg bg-default-200"></div>
-          </Skeleton>
-          <Skeleton className="w-4/5 rounded-lg">
-            <div className="h-3 w-4/5 rounded-lg bg-default-200"></div>
-          </Skeleton>
-          <Skeleton className="w-2/5 rounded-lg">
-            <div className="h-3 w-2/5 rounded-lg bg-default-300"></div>
-          </Skeleton>
+      <div className="px-80 flex flex-col gap-5 mt-5">
+        <p>numero de produtos: {numProducts}</p>
+        <div className="flex items-center gap-2">
+          <Input
+            value={textInput}
+            onChange={(e) => setTextInput(e.target.value)}
+            placeholder="Digite o seu texto aqui..."
+          />
+          <Button color="primary" onClick={handleCLickAddItem}>
+            Enviar
+          </Button>
         </div>
-      )}
 
-      <ul className='gap-6 grid grid-cols-[repeat(auto-fill,min(200px))] justify-between'>
-        {itens.map((item) => (
-          <li key={item.id}>
-            <Card
-            shadow='sm'
-            isPressable
-            onPress={()=>{console.log('item pressionado')}}>
-              <CardBody className='overflow-visible p-0'>
-                <Image 
-                shadow='sm'
-                radius='lg'
-                width='100%'
-                alt={item.title}
-                className='object-cover h-[140px] w-[200px]'
-                src='https://picsum.photos/seed/picsum/200/300'
-                />
+        {/* {loading && <p>Carregando...</p>} */}
 
-              </CardBody>
-              <CardFooter className='text-small justify-between'>
-                <b>{item.title}</b>
-                <p className='text-default-500'>{item.price}</p>
-              </CardFooter>
-            </Card>
-          </li>
-        ))}
-      </ul>
-    </div>
-);
+        {loading && (
+          <div className="space-y-3">
+            <Skeleton className="w-3/5 rounded-lg">
+              <div className="h-3 w-3/5 rounded-lg bg-default-200"></div>
+            </Skeleton>
+            <Skeleton className="w-4/5 rounded-lg">
+              <div className="h-3 w-4/5 rounded-lg bg-default-200"></div>
+            </Skeleton>
+            <Skeleton className="w-2/5 rounded-lg">
+              <div className="h-3 w-2/5 rounded-lg bg-default-300"></div>
+            </Skeleton>
+          </div>
+        )}
+
+        <ul className='gap-6 grid grid-cols-[repeat(auto-fill,min(150px))] justify-between'>
+          {itens.map((item) => (
+            <li key={item.id}>
+              <Card
+              shadow='sm'
+              isPressable
+              onPress={()=>{console.log('item pressionado')}}>
+                <CardBody className='overflow-visible p-0'>
+                  <Image 
+                  shadow='sm'
+                  radius='lg'
+                  width='100%'
+                  alt={item.title}
+                  className='object-cover h-[140px] w-[200px]'
+                  src='https://picsum.photos/400/300'
+                  />
+
+                </CardBody>
+                <CardFooter className='text-small justify-between'>
+                  <b>{item.title}</b>
+                  <p className=' mx-2 text-default-500'>{item.price}</p>
+                  <Button startContent={<BsCart3/>}>Comprar</Button>
+                </CardFooter>
+              </Card>
+            </li>
+          ))}
+        </ul>
+      </div>
+  );
 }
