@@ -12,6 +12,7 @@ import {
   CardFooter,
 } from "@nextui-org/react";
 import { BsCart3 } from "react-icons/bs";
+import { useShoppingCartDispatch } from "@/contexts/ShoppingCartContext";
 
 export interface Product {
   id: number;
@@ -23,6 +24,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [itens, setItens] = useState<Product[]>([]);
   const [textInput, setTextInput] = useState("");
+  const dispatch = useShoppingCartDispatch();
 
   useEffect(() => {
     loadItems();
@@ -78,7 +80,7 @@ export default function Home() {
         </div>
       )}
 
-      <ul className="gap-6 grid grid-cols-[repeat(auto-fill,max(220px))] justify-between">
+      <ul className="gap-6 grid grid-cols-[repeat(auto-fill,max(150px))] justify-between">
         {itens.map((item) => (
           <li key={item.id}>
             <Card
@@ -100,7 +102,16 @@ export default function Home() {
               <CardFooter className="text-medium justify-between">
                 <b>{item.title}</b>
                 <p className=" mx-2 text-default-500">{item.price}</p>
-                <Button isIconOnly startContent={<BsCart3 />}>
+                <Button
+                  onClick={() => {
+                    dispatch({
+                      type: "added",
+                      ...item,
+                    });
+                  }}
+                  isIconOnly
+                  startContent={<BsCart3 />}
+                >
                   {/*Comprar*/}
                 </Button>
               </CardFooter>
